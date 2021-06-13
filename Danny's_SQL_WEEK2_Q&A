@@ -1,0 +1,53 @@
+-- A. Pizza Metrics
+
+-- 1. How many pizzas were ordered?
+select count(*) from pizza_runner.customer_orders;
+
+-- 2.How many unique customer orders were made?
+select count(distinct(co.order_id)) from pizza_runner.customer_orders co;
+
+-- 3.How many successful orders were delivered by each runner?
+select co.runner_id, count(co.order_id) from pizza_runner.runner_orders co where co.distance != 'null' group by co.runner_id order by co.runner_id asc;
+
+-- 4.How many of each type of pizza was delivered?
+select co.pizza_id, count(co.pizza_id) from pizza_runner.customer_orders co group by co.pizza_id order by co.pizza_id asc;
+
+-- 5.How many Vegetarian and Meatlovers were ordered by each customer?
+select co.customer_id, co.pizza_id, count(co.pizza_id) from pizza_runner.customer_orders co group by co.customer_id, co.pizza_id order by co.customer_id, co.pizza_id asc;
+
+-- 6.What was the maximum number of pizzas delivered in a single order?
+select co.order_id, count(co.pizza_id) from pizza_runner.customer_orders co group by co.order_id order by co.count desc limit 1;
+
+-- 7.For each customer, how many delivered pizzas had at least 1 change and how many had no changes?
+SELECT customer_id, changes, COUNT(*) AS counts
+FROM (SELECT co.customer_id, CASE WHEN exclusions != '' OR extras != ''
+OR exclusions != 'null' OR extras != 'null'
+THEN 'Yes'
+ELSE 'No' 
+END changes
+FROM pizza_runner.customer_orders co JOIN pizza_runner.runner_orders ro
+ON co.order_id = ro.order_id
+WHERE ro.cancellation = '') as changes
+GROUP BY customer_id, changes;
+
+-- 8.How many pizzas were delivered that had both exclusions and extras?
+SELECT customer_id, changes, COUNT(*) AS counts
+FROM (SELECT co.customer_id, CASE WHEN exclusions != '' OR extras != ''
+OR exclusions != 'null' OR extras != 'null'
+THEN 'Yes'
+ELSE 'No' 
+END changes
+FROM pizza_runner.customer_orders co JOIN pizza_runner.runner_orders ro
+ON co.order_id = ro.order_id
+WHERE ro.cancellation = '') as changes
+GROUP BY customer_id, changes;
+
+-- 9.What was the total volume of pizzas ordered for each hour of the day?
+SELECT STRFTIME('%H', order_time) AS hours, COUNT(*)
+FROM customer_orders co
+GROUP BY hours;
+
+-- 10.What was the volume of orders for each day of the week?
+SELECT STRFTIME('%d', order_time) AS days, COUNT(*)
+FROM customer_orders co
+GROUP BY days;Danny's_SQL_WEEK1_DB_Code
